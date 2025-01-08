@@ -1,0 +1,45 @@
+% load test image
+load ziggy.jpg
+
+% assign test image to variable
+image = imread('ziggy.jpg');
+
+% calculate histogram of image
+imageHist = imhist(image);
+
+% call heq function to retrieve the intensity transformation function
+trans = heq(imageHist);
+
+% use intensTrans to apply intensity transformation function to the test image
+transZig = intensTrans(image,trans);
+
+% save transformed image to a new file
+imwrite(transZig,'newZiggy.jpg')
+
+function out = intensTrans(in,trans)
+% function to apply intensity transformation function to the input image. new image returned
+
+    % verify image data type
+    if ~isa(in,'uint8')
+       error('Input image must be uint8.')
+    end
+
+    % verify trans vector is a numeric vector with 256 elements
+    if length(trans) ~= 256 || ~isnumeric(trans) || ~isvector(trans)
+       error('trans must be a numeric vector 256 elements long.')
+    end
+
+    % ensure range of values in trans are consistent with uint8
+    if min(trans) < 0 || max(trans) > 255
+       error('trans elements must be in range 0-255.')
+    end
+
+    % initialize ouptut
+    out = in;
+
+    % loop over all gray levels in uint8 and change all pixels with the current gray level to thenew gray level indicated by
+    % trans
+    for i = 0:255
+        out(in == 1) = uint8(trans(i + 1));
+    end
+end
