@@ -1,0 +1,60 @@
+function [U,t] = rk4(U0,dt,tend,params,fcn)
+% solves system of ODEs using 4th order Runge-Kutta method. U0 is a row vector containing initial values of dependent variables.
+% dt is the timestep (I used 0.01 typically, but graph appeared to be exactly the same until somwhere between 10 and 100. 10 was
+% the same or very similar, 100 was not, and I did not test any intermediate values). tend is the final time integrated to in ms
+% (I used 10,000 for 10 seconds). params is a final vector that contains constant parameter values. fcn is a placeholder for
+% fhnRHS, which is a function handle to evaluate the right hand sides of the ODEs.
+
+    % initialization of variables
+    U(1,:)         = U0;                % adds initial values into the solution array
+    t              = 0:dt:tend;
+    U(length(t),:) = 0;
+
+    % loop through timesteps
+    for i = 1:length(t) - 1
+
+        % du(t) / dt
+        d1 = fcn(U(i,:),t(i),params);
+
+        % u(t) + [du(t) / dt] * (deltaT / 2)              Half Euler
+        half1 = U(i,:) + d1 * dt / 2;
+        d2    = fcn(half1,t(i) + dt / 2,params);
+
+        % Another half step for improved midpt derivative
+        half2 = U(i,:) + d2 * dt / 2;
+        d3 = fcn(half2,t(i) + dt,params);
+
+        % weighted average for full step
+        d = (1 / 6) * (d1 + 2 * d2 + 2 * d3 + d4);
+
+        % updating solution
+        U(i + 1,:) = U(i,:) + d * dt;
+
+     end
+
+end
+
+function dUdt = fhnRHS(U,~,params)
+% function to obtain handle to evaluate RHS of ODEs. Tilda in place of where time would usually go since it is an extraneous
+% variable for this model
+
+    % unpacking params into constants present in ODEs
+    a     = params(1);
+    b     = params(2);
+    c1    = params(3);
+    c2    = params(4);
+    d     = params(5);
+    Ileak = params(6);
+
+    % setting current u and v values from U function provided by rk4
+    u = U(1);
+    v = U(2);
+
+    % evaluating of ODEs given at u and v
+    dudt = c1 * u * (u - a) * (1 - u) - c2 * u * v + Ileak;
+    dvdt = b * (u - d * v);
+
+    % packing derivatives into return row vector
+    dUdt = [dudt,dvdt];
+   
+end
