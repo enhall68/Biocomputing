@@ -1,0 +1,112 @@
+% establish clean workspace
+clear, close all
+clc
+
+% load image into variable
+load stomach.jpg
+image = im2double(imread('stomach.jpg'));
+
+% create sample by cropping desired portion of image
+sample = imcrop(image);            % imtool kept popping errors or opening redundant useless figures, but this works
+% Note: to crop click and drag over desired section then right click highlighted portion and select 'Crop Image' (to click 
+% and drag the pointer must be converted into a crosshair. It will automatically do this, but sometimes takes a minute to 
+% load. The code should then proceed.
+        % The results of the function vary based on the cropped image. It works best with a very small surrounding layer of 
+        % gray around the black dot. Too much and extraneous, nonexistent dots will be counted. Too little and not all dots
+        % counted
+
+% call function
+numDots = findDots(image,sample);
+
+% function to examine the input image and count the number of dots, this function will also plot red dots at counted points
+function numDots = findDots(image,sample)
+
+    % ensure 2 inputs
+    if nargin ~= 2
+       error('findDtos() must have 2 input arguments.')
+    end
+
+    % ensure inputs are double type
+    if ~isa(image,'double') || ~isa(sample,'double')
+       error('Inputs must be type double.')
+    end
+
+    % display original image
+    imshow(image)
+
+    % compute normalized cross-correlation between dot and image
+    corrImg = normxcorr2(sample,image);
+
+    % find approximate size of the dot to find minimum separation (for this code, it is assumed that the minimum separation
+    % between dots is at least one dot)
+    [r,c] = size(sample);
+
+    % the while loops ensure the rows and columns are odd numbers, so the half widths can be calculated correctly
+    while rem(r,2) == 0
+          r = r + 1;
+    end
+
+    while rem(c,2) == 0
+          c = c + 1;
+    end
+
+    % calculation of half widths
+    wr = (r - 1) / 2;
+    wc = (c - 1) / 2;
+
+    % call helper function
+    peakImg = peakFinder2D(corrImg,wr,wc);
+
+    % find x and y locations of peaks
+    [xPeaks,yPeaks] = find(peakImg);
+
+    % threshold to ignore peaks of nonimportance
+    thresh = 0.75;
+
+    % finding peaks greater than the threshold
+    valid = corrImg(sub2ind(size(corrImg),xPeaks,yPeaks)) > thresh;
+
+    % finding x and y locations of valid peaks
+    xPeaks = xPeaks(valid);
+    yPeaks = yPeaks(valid);
+
+    % plotting of red dots over black dots and adjusting for half widths
+    hold on
+    plot(yPeaks - wc,xPeaks - wr,'r.','MarkerSize',15);
+
+    %printing of marked figure to a png
+    print('stomachMarked','-dpng')
+
+    % counting of dots based on valid peaks
+    numDots = numel(xPeaks);
+
+end
+
+% helper function to find peaks in correlated image
+function output = peakFinder2D(img,wr,wc)
+
+    % ensure 3 inputs
+    if nargin ~= 3
+       error('peakFinder2D() must have 3 input arguments.')
+    end
+
+    % initialize output
+    output = zeros(size(img));
+
+    % loop through image, accounting for half widths
+    for r = wr + 1 : size(img,1) - wr
+        for c = wc + 1 : size(img,2) - wc
+
+            % finding of window
+            chunk = img(r - wr : r + wr, c - wc : c + wc);
+
+            % finding the magnitude and index of the max in window
+            [mx,index] = max(chunk(:));
+
+            % setting output to max if the index is in the center of the window
+            if index == (numel(chunk) + 1) / 2
+               output(r,c) = mx;
+            end
+        end
+    end
+end
