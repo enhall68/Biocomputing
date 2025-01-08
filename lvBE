@@ -1,0 +1,33 @@
+function [F,J] = lvBE(Unp1,paramsNewton)
+
+    % unpack current estimates
+    cn1 = Unp1(1);
+    kn1 = Unp1(2);
+
+    % unpack parameters
+    a = paramsNewton(1);
+    b = paramsNewton(2);
+    d = paramsNewton(3);
+    e = paramsNewton(4);
+
+    % unpack un and vn
+    cn = paramsNewton(5);
+    kn = paramsNewton(6);
+
+    % compute f and g
+    f = cn + (a * cn1 - b * cn1 * kn1) * dt - cn1;
+    g = kn + (d * cn1 * kn1 - e * kn1) * dt - kn1;
+
+    % stack into column vector
+    F = [f;g];
+
+    % compute elements of jacobian matrix
+    dfdcn1 = (a - b * kn1) * dt -1;
+    dfdkn1 = (-b * cn1) * dt;
+    dgdcn1 = (d * kn1) * dt;
+    dgdkn1 = (d * cn1 - e) * dt - 1;
+
+    % assemle jacobian matrix
+    J = [dfdcn1, dfdkn1; dgdcn1, dgdkn1];
+
+end
