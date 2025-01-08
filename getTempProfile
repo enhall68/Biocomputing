@@ -1,0 +1,45 @@
+% close open windows and clear variables
+close all
+clear all
+
+% initial variables
+Ta     = 20;
+h      = 2.0e-8;
+tend   = 10;
+dx     = 0.1;
+guessI = 10;
+
+% consolidated vector of parameters
+params = [Ta,h,tend,dx];
+
+% bisection conditions with over and under guesses. opposite signs to ensure root
+under = -guessI;
+over  = guessI;
+tol   = 0.1;
+
+% bracket ensurance
+while shootingError(under,params) > 0
+      under = 0.5 * under;
+end
+
+while shootingError(over,params)  < 0
+      over  = 2 * over;
+end
+
+% call of bisection to find correct initial value of dT/dx
+[guess,n] = bisection(under,over,tol,@shootingError,params);
+
+% update initial conditions
+ic = [20;guess];
+
+% call rk4() to solve
+[z,t] rk4(ic,dx,tend,params,@barRHS);
+
+% plot temp profile
+plot(t,z(:,1));
+axis([0,10,0,200])
+xlabel('Length from Cool End')
+ylabel('Temperature')
+
+% printing of figure to a png
+print('Temp Profile','-dpng')
