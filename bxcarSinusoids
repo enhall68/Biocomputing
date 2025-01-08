@@ -1,0 +1,50 @@
+% script that forms 4 sinusoids of designated frequency and amplitude, combines the 4 signals into one composite signal, forms a
+% spectrum of the composite signal, plots the composite signal and its spectrum, filters the composite signal at a filter width
+% of 5, creates a spectrum of the filtered signal, and plots the filtered signal and its spectrum.
+
+% closing of any open figures; clearing of variables and command window
+close, clear, clc
+
+% creation of time vector for 3 seconds starting from 0 and separated by 1 ms
+t = 0:0.001:3.000;
+
+% frequency and amplitude vectors created from given variables
+freqs = [3,6,9,100];
+amps  = [1.0,0.75,0.5,0.25];
+
+% initialization of signals vector for the four sinusoids to be placed in
+signals = zeros(4,length(t));
+
+% generation of sinusoid signals within the signal array using a random phase shift
+for i = 1:4
+
+    % generation of random phase shift (rand is automatically in the range of [0,1], when multiplied by pi, this range becomes
+    % [0,pi]
+    randShift = rand*pi;
+
+    % generation and addition of phase shifted sinusoids into signals vector
+    signals(i,:) = amps(i)*sin(2*pi*freqs(i)*t+randShift);
+    
+end
+
+% sum of 4 sinusoid signals
+compositeSig = sum(signals);
+
+% creation of spectrum for composite signal
+[p,f] = periodogram(compositeSig,[],length(compositeSig),1000);
+
+% subplot function utilized to plot composite signal in a figure window with two panels
+subplot(2,1,1);                      % directing which panel to plot to
+plot(t,compositeSig);                % plotting
+title('Signal');                     % naming panel
+xlabel('Time (sec)');                % naming x axis
+ylabel('Amplitude');                 % naming y axis
+hold on                              % holding plot on panel
+
+% subplot function utilized to plot the spectrum of the composite signal
+subplot(2,1,2);                      % directing to plot to the second panel
+plot(f,sqrt(p));                     % plotting
+title('Spectrum');                   % naming panel
+xlabel('Frequency (Hz)');            % naming x axis
+ylabel('Magnitude');                 % naming y axis
+hold on                              % holding plot on panel
