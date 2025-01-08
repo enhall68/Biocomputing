@@ -1,0 +1,55 @@
+function outSignal = convtd(inSignal,kernel)
+% function to filter a signal via kernel convolution
+
+    % if statement to ensure if inSignal is vector
+    if ~isvector(inSignal == 1)
+       error('Input signal must be a vector.')
+    end
+
+    % if statement to ensure kernel is a vector
+    if ~isvector(kernel == 1)
+       error('Kernel must be a vector.')
+    end
+
+    % if statement to ensure kernel has an odd number of elements
+    if rem(kernel,2) == 0
+       error('Kernel must have an odd number of elements.')
+    end
+
+    % finding the half-width of the kernel (w in bxcar)
+    halfWidth = ((length(kernel) - 1) / 2);
+
+    % initializing the output signal to be the same size as the input signal by filling with zeros
+    outSignal = zeros(size(inSignal));
+
+    % flipping kernel coefficients for future use
+    flippedKernel = flip(kernel);
+
+    % looping through the sample with the exception of the first and last half widths
+    for i = halfWidth + 1 : length(inSignal) - halfWidth
+
+        % initializing/resetting sum variable for future use
+        sum = 0;
+
+        % looping through the chunk
+        for j = 1 : length(kernel)
+
+            % multiply corresponding input signal and flipped kernel positions
+            product = inSignal(i - halfWidth + j - 1) * flippedKernel(j);
+
+            % summing all products created as the chunk is looped
+            sum = sum + product;
+
+        end
+
+        % setting output signal point i as equal to the sum of the products of the chunk and kernel positions
+        outSignal(i) = sum;
+
+    end
+
+    % verifying that the length of the output and input signals are still equal to one another
+    if length(outSignal) ~= length(inSignal)
+       error('There is an unknown issue within the fuction.')
+    end
+
+end
