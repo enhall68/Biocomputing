@@ -1,0 +1,32 @@
+clear
+close all
+
+% parameters
+dt = 0.001;
+c  = 1;
+k  = 0.1;
+a  = 1;
+b  = 15;
+d  = 1;
+e  = 1;
+
+% parameters vector
+params = [a,b,d,e];
+
+% initial values and tend
+U0   = [c,k];
+tend = 100;
+
+% call backward euler
+[U,t] = backwardEulerND(U0,dt,tend,params,@lvBE);
+
+% keep plot on, just in case
+hold on
+
+% plot
+plot(t,U(:,1),'b-',t,U(:,2),'r-');
+xlabel('Time')
+ylabel('Population')
+title('Lotka Volterra Population Change')
+legend('Chipmunk','Kitty')
+axis([0 tend 0 1.6])
