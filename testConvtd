@@ -1,0 +1,80 @@
+% script to test the convtd function using signal.dat
+
+% closing of any open figures; clearing of variables and command window
+close, clear all, clc
+
+% creation of kernel of length 21 and value of 1/21 for all elements
+kernel = ones([1,21]);
+kernel = kernel / 21;
+
+% loading of signal.dat as test signla
+inSignal = load('signal.dat');
+
+% calling and assigning of convtd function
+outSignal = convtd(inSignal,kernel);
+
+% creation of time variable for plotting
+time = (0:length(inSignal) - 1) * 0.001;
+
+% plotting of Figure 1 which contains the original and filtered signals. both are on the same plot, original in blue and
+% filtered in red. both plots are held on the figure. the figure is fully titled and labeled, and it includes a legend
+figure(1)
+plot(time,inSignal,'b')
+hold on
+plot(time,outSignal,'r')
+title('Signals')
+xlabel('Time (sec)')
+ylabel('Amplitude')
+legend('Input Signal','Filtered Signal')
+hold on
+
+% creation of spectrum for original and filtered signals
+[p,f]   = periodogram(inSignal,[],length(inSignal),1000);
+[pF,fF] = periodogram(outSignal,[],length(outSignal),1000);
+
+% plotting of Figure 2, which contains the spectra for the original and filtered signals. the original is blue and the 
+% filtered is red. both plots are held on in the figure. the figure is fully titled and labeled, and it includes a legend
+figure(2)
+plot(f,sqrt(p),'b')
+hold on
+plot(fF,sqrt(pF),'r')
+hold on
+title('Spectra of Signals')
+xlabel('Frequency (Hz)')
+ylabel('Magnitude')
+legend('Input Spectra','Filtered Spectra')
+
+% function call to compute frequency response
+[r,f,spec] = frequencyResp(kernel);
+
+% plotting of Figure 3, which contrains the frequency response of the kernel with Hz on the x axi
+figure(3)
+plot(f,r,spec)
+hold on
+title('Frequency Response')
+xlabel('Frequency (Hz)')
+ylabel('Gain')
+
+% function to compute the frequency response of the kernel
+function [r,f,spec] = frequencyResp(k,spec)
+
+    % spec determination if less than 2 input arguments
+    if nargin < 2
+       spec = 'b-';
+    end
+
+    % zero padding kernel to 1000 samples
+    k(1000) = 0;
+
+    % taking the fft of the kernel
+    r = fft(k);
+
+    % fft returns positive frequencies before negative, so taking elements 1:501, which have frequencoes 0:500, followed by
+    % -499:-1, which will be ignored. r contains complex numbers that give amplitude and phase. only amplitude, given by the
+    % magnitude of the complex number, is cared about for a frequency response plot, thus take the abs() of r to 501
+    r = abs(r(1:501));
+
+    % vector with frequencies contained in r
+    f = 0:500;
+
+end
