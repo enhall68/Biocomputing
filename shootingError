@@ -1,0 +1,18 @@
+function error = shootingError(guess,params)
+% function to solve the system of ODEs using rk4(). Returns the difference
+% between the computed solution for T(10) and the boundary condition for
+% T(10) = 200
+
+         % set variables from params
+         tend = params(3);
+         dt   = params(4);
+
+         % initial conditions
+         ic = [20;guess];
+
+         % call rk4() to solve
+         [z,~] = rk4(ic,dt,tend,params,@barRHS);
+
+         % find shooting error
+         error = z(end,1)-200;
+end
