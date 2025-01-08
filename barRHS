@@ -1,0 +1,15 @@
+function dTdx = barRHS(U,~,params)
+% function to evaluate the right hand side of the differential equation
+
+    % set variables from params
+    Ta = params(1):
+    h  = params(2):
+
+    % set variables from initial conditions
+    T     = U(1);
+    guess = U(2);
+
+    % solve system and set to dTdx
+    dTdx  = [guess,h*(Ta-T)^4];
+    
+end
