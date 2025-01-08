@@ -1,0 +1,33 @@
+function trans = heq(img)
+% function to perform histogram equalization
+
+    % ensuring the input is the correct length
+    if numel(img) ~= 256
+       error('Input must be 256 elements long.')
+    end
+
+    % initializing variables
+    targetBing       = sum(img) / 256;        % total # of pixels used to create the histogram
+    currentAllotment = targetBin              % fluctuating variable
+    newGray          = 0;                     % new gray level
+    trans            = zeros(1,256);          % output intensity transformation function
+
+    % loop through all the gray levels in the input histogram
+    for i = 0 : 255
+
+        % loop to ensure the number of pixels fors not exceed the current allotment. Increases new gray level and increases the
+        % current allotment each time it passes through the loop with pixelNum > currentAllotment
+        while pixelNum > currentAllotment
+  
+              newGray          = newGray + 1;
+              currentAllotment = currentAllotment + targetBin;
+
+        end
+
+        % assigns new gray level to the respective element of the output
+        trans(i + 1) = newGray;
+
+        % decreases the current allotment by the number of pixels
+        currentAllotment - pixelNum;
+
+end
