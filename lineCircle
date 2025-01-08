@@ -1,0 +1,37 @@
+function lineCircle(n)
+% function to draw a circle with n number of straight line segments
+
+    % if statement to determine if a circle can be drawn from the specified number of line segments (n must be >= 3)
+    if n < 3
+       error('A circle cannot be drawn with fewer than three straight line segments.')
+    end
+
+    % establishment of initial variables
+    degreeOfLines = 360 / n;
+    referencePtX  = 1;
+    referencePtY  = 0;
+
+    % plotting of origin point and center of polygon
+    plot(0,0,'.k','MarkerSize',10
+    hold on
+
+    % for loop to iterate through plotting each line segment
+    for i = 1:n
+
+        % the coordinates of point i
+        iPtX = cosd(i * degreeOfLines);
+        iPtY = sind(i * degreeOfLines);
+
+        % plotting of line
+        plot([referencePtX,iPtX],[referencePtY,iPtY],'b-','LineWidth',3)
+        hold on
+
+        % establishing new reference pt for next iteration
+        referencePtX = iPtX
+        referencePtY = iPtY
+
+        % establishing axes
+        axis([-1.5,1.5,-1.5,1.5])
+        axis equal
+
+end
